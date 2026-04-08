@@ -22,6 +22,9 @@ public class ChatResponse
     [JsonPropertyName("response_source")]
     public string ResponseSource { get; set; } = string.Empty;
 
+    [JsonPropertyName("manual_mode")]
+    public bool ManualMode { get; set; }
+
     [JsonPropertyName("context")]
     public List<ChatMessage> Context { get; set; } = new();
 }

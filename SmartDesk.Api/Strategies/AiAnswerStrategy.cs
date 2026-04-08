@@ -24,17 +24,17 @@ public class AiAnswerStrategy
     {
         var knowledgeBase = await _knowledgeBaseService.GetKnowledgeBaseAsync(cancellationToken);
 
-        var answer = await _aiServiceAdapter.GetAnswerAsync(
+        var answerResult = await _aiServiceAdapter.GetAnswerAsync(
             userMessage,
             context,
             knowledgeBase,
             cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(answer))
+        if (!answerResult.Success || string.IsNullOrWhiteSpace(answerResult.Answer))
         {
-            return AnswerResult.Fail();
+            return AnswerResult.Fail(answerResult.FailureReason);
         }
 
-        return AnswerResult.Ok(answer.Trim(), "ai");
+        return AnswerResult.Ok(answerResult.Answer.Trim(), "ai");
     }
 }

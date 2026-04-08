@@ -14,8 +14,27 @@ public class KeywordFallbackStrategy
         "the", "is", "a", "an", "and", "or", "to", "for", "of", "in",
         "on", "at", "my", "me", "i", "you", "we", "our", "your",
         "how", "what", "do", "does", "can", "could", "would", "should",
-        "please", "help", "with", "this", "that", "it", "are", "am"
+        "please", "help", "with", "this", "that", "it", "are", "am",
+        "about", "all", "else", "more", "again", "really", "tell", "explain",
+        "detail", "details", "anything", "further", "thats"
     };
+
+    private static readonly string[] FollowUpPhrases =
+    [
+        "is that all",
+        "anything else",
+        "tell me more",
+        "what about that",
+        "can you explain more",
+        "really",
+        "thats it",
+        "that's it",
+        "more details",
+        "what else",
+        "go on",
+        "and then",
+        "can you tell me more"
+    ];
 
     public KeywordFallbackStrategy(IKnowledgeBaseService knowledgeBaseService)
     {
@@ -28,6 +47,16 @@ public class KeywordFallbackStrategy
         CancellationToken cancellationToken = default)
     {
         var knowledgeBase = await _knowledgeBaseService.GetKnowledgeBaseAsync(cancellationToken);
+
+        if (IsFollowUpMessage(userMessage))
+        {
+            var contextualAnswer = TryGetContextualAnswer(userMessage, context, knowledgeBase.Faqs);
+
+            if (contextualAnswer != null)
+            {
+                return contextualAnswer;
+            }
+        }
 
         var bestMatch = FindBestMatch(userMessage, knowledgeBase.Faqs);
 
@@ -44,17 +73,101 @@ public class KeywordFallbackStrategy
         return AnswerResult.Ok(genericAnswer, "fallback");
     }
 
+    private static AnswerResult? TryGetContextualAnswer(
+        string userMessage,
+        IReadOnlyList<ChatMessage> context,
+        IEnumerable<FaqItem> faqs)
+    {
+        var latestAssistantMessage = context
+            .LastOrDefault(message => string.Equals(message.Role, "assistant", StringComparison.OrdinalIgnoreCase));
+
+        if (latestAssistantMessage != null)
+        {
+            var matchFromLatestAssistant = FindBestMatch(latestAssistantMessage.Content, faqs);
+
+            if (matchFromLatestAssistant != null)
+            {
+                return AnswerResult.Ok(BuildFollowUpAnswer(matchFromLatestAssistant.Answer, userMessage), "contextual_fallback");
+            }
+        }
+
+        var contextText = BuildContextReferenceText(context);
+        var matchFromContext = FindBestMatch(contextText, faqs);
+
+        if (matchFromContext != null)
+        {
+            return AnswerResult.Ok(BuildFollowUpAnswer(matchFromContext.Answer, userMessage), "contextual_fallback");
+        }
+
+        if (latestAssistantMessage != null && !string.IsNullOrWhiteSpace(latestAssistantMessage.Content))
+        {
+            return AnswerResult.Ok(BuildFollowUpAnswer(latestAssistantMessage.Content, userMessage), "contextual_fallback");
+        }
+
+        return null;
+    }
+
+    private static string BuildContextReferenceText(IReadOnlyList<ChatMessage> context)
+    {
+        if (context.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var priorMessages = context
+            .Take(Math.Max(context.Count - 1, 0))
+            .Where(message => !string.IsNullOrWhiteSpace(message.Content))
+            .Select(message => message.Content.Trim());
+
+        return string.Join(' ', priorMessages);
+    }
+
+    private static string BuildFollowUpAnswer(string answer, string userMessage)
+    {
+        var normalizedMessage = NormalizeForMatching(userMessage);
+        var trimmedAnswer = answer.Trim();
+
+        var followUpSuffix = normalizedMessage.Contains("tell me more", StringComparison.OrdinalIgnoreCase) ||
+                             normalizedMessage.Contains("more details", StringComparison.OrdinalIgnoreCase) ||
+                             normalizedMessage.Contains("explain more", StringComparison.OrdinalIgnoreCase) ||
+                             normalizedMessage.Contains("what about", StringComparison.OrdinalIgnoreCase)
+            ? "If you'd like, I can break that down further."
+            : "If you'd like, I can explain it in more detail.";
+
+        return $"{trimmedAnswer} {followUpSuffix}".Trim();
+    }
+
+    private static bool IsFollowUpMessage(string message)
+    {
+        var normalizedMessage = NormalizeForMatching(message);
+
+        if (string.IsNullOrWhiteSpace(normalizedMessage))
+        {
+            return false;
+        }
+
+        if (FollowUpPhrases.Any(phrase => normalizedMessage.Contains(phrase, StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        var tokens = Tokenize(normalizedMessage);
+
+        return tokens.Count <= 4 && tokens.Any(token =>
+            token is "all" or "else" or "more" or "again" or "really" or "explain" or "details" or "detail");
+    }
+
     private static FaqItem? FindBestMatch(string userMessage, IEnumerable<FaqItem> faqs)
     {
-        var lowerMessage = userMessage.ToLowerInvariant();
-        var tokens = Tokenize(userMessage);
+        var normalizedMessage = NormalizeForMatching(userMessage);
+        var tokens = Tokenize(normalizedMessage);
 
         double bestScore = 0;
         FaqItem? bestFaq = null;
 
         foreach (var faq in faqs)
         {
-            var score = CalculateScore(lowerMessage, tokens, faq);
+            var score = CalculateScore(normalizedMessage, tokens, faq);
 
             if (score > bestScore)
             {
@@ -68,10 +181,15 @@ public class KeywordFallbackStrategy
 
     private static List<string> Tokenize(string text)
     {
-        return Regex.Matches(text.ToLowerInvariant(), @"[a-z0-9\+\-]+")
-            .Select(match => match.Value)
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return [];
+        }
+
+        return text
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(token => token.Length > 2 && !StopWords.Contains(token))
-            .Distinct()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
 
@@ -132,5 +250,19 @@ public class KeywordFallbackStrategy
         }
 
         return score;
+    }
+
+    private static string NormalizeForMatching(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return string.Empty;
+        }
+
+        var normalized = message.Trim().ToLowerInvariant().Replace("'", string.Empty);
+        normalized = Regex.Replace(normalized, @"[^a-z0-9\+\-]+", " ");
+        normalized = Regex.Replace(normalized, @"\s+", " ").Trim();
+
+        return normalized;
     }
 }

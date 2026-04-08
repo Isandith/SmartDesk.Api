@@ -5,7 +5,7 @@ namespace SmartDesk.Api.Adapters;
 
 public interface IAiServiceAdapter
 {
-    Task<string?> GetAnswerAsync(
+    Task<AiServiceResult> GetAnswerAsync(
         string userMessage,
         IReadOnlyList<ChatMessage> context,
         KnowledgeBaseDocument knowledgeBase,

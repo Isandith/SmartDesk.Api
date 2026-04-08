@@ -52,8 +52,12 @@ public class ChatService : IChatService
             cancellationToken);
 
         // Fall back to keyword matching if AI fails.
+        var usingFallback = false;
+        var aiFailureReason = AiServiceFailureReason.None;
         if (!answerResult.Success)
         {
+            usingFallback = true;
+            aiFailureReason = answerResult.FailureReason;
             answerResult = await _keywordFallbackStrategy.TryGetAnswerAsync(
                 request.Message,
                 recentContext,
@@ -61,6 +65,21 @@ public class ChatService : IChatService
         }
 
         var finalAnswer = answerResult.Answer;
+
+        // Add notification if using fallback mode
+        if (usingFallback)
+        {
+            var statusMessage = aiFailureReason switch
+            {
+                AiServiceFailureReason.QuotaExceeded => "ℹ️ System Status: Gemini quota or rate limit was reached. Switched to manual mode. ",
+                AiServiceFailureReason.RateLimited => "ℹ️ System Status: Gemini rate limit was reached. Switched to manual mode. ",
+                AiServiceFailureReason.MissingApiKey => "ℹ️ System Status: AI service is not configured. Switched to manual mode. ",
+                AiServiceFailureReason.InvalidApiKey => "ℹ️ System Status: AI authentication failed (invalid API key). Switched to manual mode. ",
+                _ => "ℹ️ System Status: AI service is unavailable right now. Switched to manual mode. "
+            };
+
+            finalAnswer = statusMessage + finalAnswer;
+        }
 
         if (priorityEscalation)
         {
@@ -86,6 +105,7 @@ public class ChatService : IChatService
             SentimentScore = sentimentScore,
             PriorityEscalation = priorityEscalation,
             ResponseSource = answerResult.Source,
+            ManualMode = usingFallback,
             Context = _sessionService.GetRecentMessages(sessionId, 3).ToList()
         };
 

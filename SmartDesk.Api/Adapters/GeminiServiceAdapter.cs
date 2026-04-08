@@ -14,15 +14,13 @@ public class GeminiServiceAdapter : IAiServiceAdapter
 
     public GeminiServiceAdapter(ILogger<GeminiServiceAdapter> logger)
     {
-        _apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY") 
-            ?? throw new InvalidOperationException("GEMINI_API_KEY environment variable not set");
-        
+        _apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? string.Empty;
         _model = Environment.GetEnvironmentVariable("LLM_MODEL") ?? "gemini-2.0-flash";
         _logger = logger;
         _httpClient = new HttpClient();
     }
 
-    public async Task<string?> GetAnswerAsync(
+    public async Task<AiServiceResult> GetAnswerAsync(
         string userMessage,
         IReadOnlyList<ChatMessage> context,
         KnowledgeBaseDocument knowledgeBase,
@@ -30,6 +28,12 @@ public class GeminiServiceAdapter : IAiServiceAdapter
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(_apiKey))
+            {
+                _logger.LogWarning("Gemini API key is not configured. Falling back to keyword matching.");
+                return AiServiceResult.Fail(AiServiceFailureReason.MissingApiKey);
+            }
+
             // Build context from knowledge base
             var knowledgeContext = BuildKnowledgeContext(knowledgeBase);
 
@@ -78,7 +82,27 @@ public class GeminiServiceAdapter : IAiServiceAdapter
             {
                 var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
                 _logger.LogError("Gemini API returned error: {StatusCode} - {Error}", response.StatusCode, errorContent);
-                return null;
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                    errorContent.Contains("API key not valid", StringComparison.OrdinalIgnoreCase) ||
+                    errorContent.Contains("invalid api key", StringComparison.OrdinalIgnoreCase) ||
+                    errorContent.Contains("permission denied", StringComparison.OrdinalIgnoreCase) ||
+                    errorContent.Contains("API_KEY_INVALID", StringComparison.OrdinalIgnoreCase))
+                {
+                    return AiServiceResult.Fail(AiServiceFailureReason.InvalidApiKey);
+                }
+
+                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests ||
+                    errorContent.Contains("quota", StringComparison.OrdinalIgnoreCase) ||
+                    errorContent.Contains("rate limit", StringComparison.OrdinalIgnoreCase) ||
+                    errorContent.Contains("TooManyRequests", StringComparison.OrdinalIgnoreCase) ||
+                    errorContent.Contains("RESOURCE_EXHAUSTED", StringComparison.OrdinalIgnoreCase))
+                {
+                    return AiServiceResult.Fail(AiServiceFailureReason.QuotaExceeded);
+                }
+
+                return AiServiceResult.Fail(AiServiceFailureReason.ApiError);
             }
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -99,19 +123,19 @@ public class GeminiServiceAdapter : IAiServiceAdapter
                         if (!string.IsNullOrWhiteSpace(answer))
                         {
                             _logger.LogInformation("Gemini API returned answer for message: {Message}", userMessage);
-                            return answer;
+                            return AiServiceResult.Ok(answer);
                         }
                     }
                 }
             }
 
             _logger.LogWarning("Gemini API returned empty response for message: {Message}", userMessage);
-            return null;
+            return AiServiceResult.Fail(AiServiceFailureReason.EmptyResponse);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error calling Gemini API for message: {Message}", userMessage);
-            return null;
+            return AiServiceResult.Fail(AiServiceFailureReason.Exception);
         }
     }
 
