@@ -7,6 +7,7 @@ namespace SmartDesk.Api.Services;
 public class ChatService : IChatService
 {
     private const int MaxContextMessages = 20;
+    private const string FrontendMarker = "!$!@$!$!";
 
     private readonly ISessionService _sessionService;
     private readonly ISentimentService _sentimentService;
@@ -80,15 +81,16 @@ public class ChatService : IChatService
                 _ => "ℹ️ System Status: AI service is unavailable right now. Switched to manual mode. "
             };
 
-            finalAnswer = statusMessage + finalAnswer;
+            finalAnswer = $"{FrontendMarker}[WARNING]{statusMessage}{FrontendMarker}[CONTENT]{finalAnswer}";
         }
 
         if (priorityEscalation)
         {
-            finalAnswer =
-                "⚠️ Priority Support: We're sorry you're facing issues. Our team will assist you immediately. " +
-                finalAnswer;
+            var priorityMessage = "⚠️ Priority Support: We're sorry you're facing issues. Our team will assist you immediately. ";
+            finalAnswer = $"{FrontendMarker}[PRIORITY]{priorityMessage}{FrontendMarker}[CONTENT]{finalAnswer}";
         }
+
+        finalAnswer = finalAnswer.Replace(". ", $". {FrontendMarker}[BREAK] ");
 
         var assistantMessage = new ChatMessage
         {
