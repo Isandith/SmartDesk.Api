@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local environment files for SmartDesk project
+SmartDesk.Api/.env
+SmartDesk.Api/.env.local
+SmartDesk.Api/.env.*.local
