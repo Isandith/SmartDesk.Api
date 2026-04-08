@@ -5,6 +5,9 @@ using SmartDesk.Api.Models.KnowledgeBase;
 
 namespace SmartDesk.Api.Adapters;
 
+/// <summary>
+/// Integrates with the Gemini API to generate answers from chat context and knowledge-base content.
+/// </summary>
 public class GeminiServiceAdapter : IAiServiceAdapter
 {
     private readonly string _apiKey;
@@ -20,6 +23,14 @@ public class GeminiServiceAdapter : IAiServiceAdapter
         _httpClient = new HttpClient();
     }
 
+    /// <summary>
+    /// Asynchronously gets an answer from the Gemini API based on the user's message, chat context, and knowledge base.
+    /// </summary>
+    /// <param name="userMessage">The user's message to generate a response for.</param>
+    /// <param name="context">The chat context, consisting of previous messages.</param>
+    /// <param name="knowledgeBase">The knowledge base document to use for generating the response.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
+    /// <returns>Returns an <see cref="AiServiceResult"/> indicating the success or failure of the operation.</returns>
     public async Task<AiServiceResult> GetAnswerAsync(
         string userMessage,
         IReadOnlyList<ChatMessage> context,
@@ -34,13 +45,9 @@ public class GeminiServiceAdapter : IAiServiceAdapter
                 return AiServiceResult.Fail(AiServiceFailureReason.MissingApiKey);
             }
 
-            // Build context from knowledge base
             var knowledgeContext = BuildKnowledgeContext(knowledgeBase);
-
-            // Build conversation history
             var conversationHistory = BuildConversationHistory(context);
 
-            // Create the system prompt with knowledge base context
             var systemPrompt = $"""
                 You are a helpful FAQ assistant for {knowledgeBase.CompanyName}.
                 Use the following knowledge base to answer user questions accurately and concisely.
@@ -49,7 +56,6 @@ public class GeminiServiceAdapter : IAiServiceAdapter
                 {knowledgeContext}
                 """;
 
-            // Build request body for Gemini API
             var requestBody = new
             {
                 contents = new[]
@@ -74,7 +80,6 @@ public class GeminiServiceAdapter : IAiServiceAdapter
             var jsonContent = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            // Call Gemini API
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
             var response = await _httpClient.PostAsync(url, content, cancellationToken);
 
@@ -107,8 +112,7 @@ public class GeminiServiceAdapter : IAiServiceAdapter
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             var jsonResponse = JsonDocument.Parse(responseContent);
-            
-            // Extract the text from the Gemini response
+
             if (jsonResponse.RootElement.TryGetProperty("candidates", out var candidates) &&
                 candidates.GetArrayLength() > 0)
             {

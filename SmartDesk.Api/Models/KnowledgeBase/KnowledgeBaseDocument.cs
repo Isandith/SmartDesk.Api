@@ -2,6 +2,9 @@
 
 namespace SmartDesk.Api.Models.KnowledgeBase;
 
+/// <summary>
+/// Represents the root knowledge base document used for FAQ answering.
+/// </summary>
 public class KnowledgeBaseDocument
 {
     [JsonPropertyName("company_name")]
@@ -20,6 +23,9 @@ public class KnowledgeBaseDocument
     public List<FaqItem> Faqs { get; set; } = new();
 }
 
+/// <summary>
+/// Represents contact information for support channels.
+/// </summary>
 public class ContactInfo
 {
     [JsonPropertyName("email")]
@@ -32,6 +38,9 @@ public class ContactInfo
     public string ResponseTime { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// Represents support policy settings and escalation details.
+/// </summary>
 public class SupportPolicy
 {
     [JsonPropertyName("compliance")]
@@ -44,6 +53,9 @@ public class SupportPolicy
     public string EscalationThreshold { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// Represents an FAQ entry in the knowledge base.
+/// </summary>
 public class FaqItem
 {
     [JsonPropertyName("id")]
@@ -62,6 +74,9 @@ public class FaqItem
     public FaqMetadata Metadata { get; set; } = new();
 }
 
+/// <summary>
+/// Represents metadata attached to an FAQ entry.
+/// </summary>
 public class FaqMetadata
 {
     [JsonPropertyName("tags")]

@@ -1,5 +1,8 @@
 namespace SmartDesk.Api.Models.Chat;
 
+/// <summary>
+/// Defines failure categories returned by the AI service integration.
+/// </summary>
 public enum AiServiceFailureReason
 {
     None = 0,
@@ -12,6 +15,9 @@ public enum AiServiceFailureReason
     Exception
 }
 
+/// <summary>
+/// Represents the raw result returned by an AI service adapter.
+/// </summary>
 public class AiServiceResult
 {
     public bool Success { get; set; }

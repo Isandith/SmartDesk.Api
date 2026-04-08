@@ -3,6 +3,9 @@ using SmartDesk.Api.Models.Chat;
 
 namespace SmartDesk.Api.Validators;
 
+/// <summary>
+/// Validates incoming chat request payloads.
+/// </summary>
 public class ChatRequestValidator : AbstractValidator<ChatRequest>
 {
     public ChatRequestValidator()

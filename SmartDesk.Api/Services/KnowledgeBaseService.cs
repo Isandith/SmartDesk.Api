@@ -3,6 +3,9 @@ using SmartDesk.Api.Models.KnowledgeBase;
 
 namespace SmartDesk.Api.Services;
 
+/// <summary>
+/// Loads and exposes the knowledge base document from disk.
+/// </summary>
 public class KnowledgeBaseService : IKnowledgeBaseService
 {
     private readonly string _filePath;

@@ -3,6 +3,9 @@ using SmartDesk.Api.Models.Chat;
 
 namespace SmartDesk.Api.Services;
 
+/// <summary>
+/// Stores chat session state in memory for the current application process.
+/// </summary>
 public class InMemorySessionService : ISessionService
 {
     private readonly ConcurrentDictionary<string, List<ChatMessage>> _sessions = new();

@@ -5,6 +5,9 @@ using SmartDesk.Api.Services;
 
 namespace SmartDesk.Api.Strategies;
 
+/// <summary>
+/// Resolves answers from keyword and context matching against the knowledge base.
+/// </summary>
 public class KeywordFallbackStrategy
 {
     private readonly IKnowledgeBaseService _knowledgeBaseService;
@@ -41,6 +44,15 @@ public class KeywordFallbackStrategy
         _knowledgeBaseService = knowledgeBaseService;
     }
 
+    /// <summary>
+    /// Tries to get an answer for the user's message, optionally using the provided chat context.
+    /// </summary>
+    /// <param name="userMessage">The message from the user.</param>
+    /// <param name="context">The chat context, i.e., previous messages in the conversation.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>
+    /// An <see cref="AnswerResult"/> containing the answer, or an indication that no answer was found.
+    /// </returns>
     public async Task<AnswerResult> TryGetAnswerAsync(
         string userMessage,
         IReadOnlyList<ChatMessage> context,

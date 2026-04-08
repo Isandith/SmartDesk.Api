@@ -4,6 +4,9 @@ using SmartDesk.Api.Services;
 
 namespace SmartDesk.Api.Strategies;
 
+/// <summary>
+/// Retrieves answers from the configured AI adapter using knowledge-base context.
+/// </summary>
 public class AiAnswerStrategy
 {
     private readonly IAiServiceAdapter _aiServiceAdapter;

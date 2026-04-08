@@ -1,11 +1,17 @@
 namespace SmartDesk.Api.Services;
 
+/// <summary>
+/// Represents an expected sentiment scoring scenario for test-like validation.
+/// </summary>
 public record SentimentSampleCase(
     string Message,
     double MinExpectedScore,
     double MaxExpectedScore,
     bool ExpectedPriorityEscalation);
 
+/// <summary>
+/// Provides predefined sentiment sample cases for verification and demos.
+/// </summary>
 public static class SentimentSampleCases
 {
     public static IReadOnlyList<SentimentSampleCase> Cases { get; } =

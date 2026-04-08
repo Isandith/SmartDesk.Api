@@ -2,6 +2,9 @@
 
 namespace SmartDesk.Api.Models.Chat;
 
+/// <summary>
+/// Represents a single message in a chat session.
+/// </summary>
 public class ChatMessage
 {
     [JsonPropertyName("role")]

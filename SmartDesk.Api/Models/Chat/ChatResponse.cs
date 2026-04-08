@@ -2,6 +2,9 @@
 
 namespace SmartDesk.Api.Models.Chat;
 
+/// <summary>
+/// Represents the API payload returned for a chat answer request.
+/// </summary>
 public class ChatResponse
 {
     [JsonPropertyName("session_id")]

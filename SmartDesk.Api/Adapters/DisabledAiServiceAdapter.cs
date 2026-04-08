@@ -3,6 +3,9 @@ using SmartDesk.Api.Models.KnowledgeBase;
 
 namespace SmartDesk.Api.Adapters;
 
+/// <summary>
+/// No-op AI adapter that always signals fallback mode.
+/// </summary>
 public class DisabledAiServiceAdapter : IAiServiceAdapter
 {
     public Task<AiServiceResult> GetAnswerAsync(

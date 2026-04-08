@@ -2,6 +2,9 @@
 
 namespace SmartDesk.Api.Services;
 
+/// <summary>
+/// Calculates sentiment scores using phrase and keyword rules.
+/// </summary>
 public class RuleBasedSentimentService : ISentimentService
 {
     private static readonly Dictionary<string, double> NegativePhrases = new(StringComparer.OrdinalIgnoreCase)

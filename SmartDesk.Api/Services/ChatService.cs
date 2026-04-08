@@ -4,6 +4,9 @@ using SmartDesk.Api.Strategies;
 
 namespace SmartDesk.Api.Services;
 
+/// <summary>
+/// Coordinates validation, sentiment analysis, answer generation, and session context for chat interactions.
+/// </summary>
 public class ChatService : IChatService
 {
     private const int MaxContextMessages = 20;

@@ -3,6 +3,9 @@ using SmartDesk.Api.Models.Chat;
 
 namespace SmartDesk.Api.Validators;
 
+/// <summary>
+/// Validates outgoing chat response payloads.
+/// </summary>
 public class ChatResponseValidator : AbstractValidator<ChatResponse>
 {
     private const int MaxContextMessages = 20;
