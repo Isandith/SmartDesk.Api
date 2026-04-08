@@ -41,7 +41,9 @@ public class RuleBasedSentimentService : ISentimentService
         ["great service"] = 0.55,
         ["thank you"] = 0.30,
         ["works well"] = 0.45,
-        ["very helpful"] = 0.45
+        ["very helpful"] = 0.45,
+        ["really like"] = 0.40,
+        ["i like this"] = 0.35
     };
 
     private static readonly Dictionary<string, double> PositiveWords = new(StringComparer.OrdinalIgnoreCase)

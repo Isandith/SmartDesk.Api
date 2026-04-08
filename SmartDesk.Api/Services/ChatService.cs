@@ -13,6 +13,7 @@ public class ChatService : IChatService
     private readonly ISentimentService _sentimentService;
     private readonly AiAnswerStrategy _aiAnswerStrategy;
     private readonly KeywordFallbackStrategy _keywordFallbackStrategy;
+    private readonly IValidator<ChatRequest> _requestValidator;
     private readonly IValidator<ChatResponse> _responseValidator;
 
     public ChatService(
@@ -20,12 +21,14 @@ public class ChatService : IChatService
         ISentimentService sentimentService,
         AiAnswerStrategy aiAnswerStrategy,
         KeywordFallbackStrategy keywordFallbackStrategy,
+        IValidator<ChatRequest> requestValidator,
         IValidator<ChatResponse> responseValidator)
     {
         _sessionService = sessionService;
         _sentimentService = sentimentService;
         _aiAnswerStrategy = aiAnswerStrategy;
         _keywordFallbackStrategy = keywordFallbackStrategy;
+        _requestValidator = requestValidator;
         _responseValidator = responseValidator;
     }
 
@@ -33,6 +36,12 @@ public class ChatService : IChatService
         ChatRequest request,
         CancellationToken cancellationToken = default)
     {
+        var requestValidation = await _requestValidator.ValidateAsync(request, cancellationToken);
+        if (!requestValidation.IsValid)
+        {
+            throw new ValidationException(requestValidation.Errors);
+        }
+
         var sessionId = _sessionService.GetOrCreateSessionId(request.SessionId);
 
         var userMessage = new ChatMessage
