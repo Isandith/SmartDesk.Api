@@ -65,7 +65,7 @@ public class ChatService : IChatService
         if (priorityEscalation)
         {
             finalAnswer =
-                "Priority Support: We can see this issue is urgent and have marked it for priority attention. " +
+                "⚠️ Priority Support: We're sorry you're facing issues. Our team will assist you immediately. " +
                 finalAnswer;
         }
 
