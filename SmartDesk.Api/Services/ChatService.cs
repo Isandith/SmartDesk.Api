@@ -6,6 +6,8 @@ namespace SmartDesk.Api.Services;
 
 public class ChatService : IChatService
 {
+    private const int MaxContextMessages = 20;
+
     private readonly ISessionService _sessionService;
     private readonly ISentimentService _sentimentService;
     private readonly AiAnswerStrategy _aiAnswerStrategy;
@@ -106,7 +108,7 @@ public class ChatService : IChatService
             PriorityEscalation = priorityEscalation,
             ResponseSource = answerResult.Source,
             ManualMode = usingFallback,
-            Context = _sessionService.GetRecentMessages(sessionId, 3).ToList()
+            Context = _sessionService.GetRecentMessages(sessionId, MaxContextMessages).ToList()
         };
 
         var validationResult = await _responseValidator.ValidateAsync(response, cancellationToken);

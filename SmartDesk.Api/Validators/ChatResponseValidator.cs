@@ -5,6 +5,8 @@ namespace SmartDesk.Api.Validators;
 
 public class ChatResponseValidator : AbstractValidator<ChatResponse>
 {
+    private const int MaxContextMessages = 20;
+
     public ChatResponseValidator()
     {
         RuleFor(x => x.SessionId)
@@ -27,7 +29,7 @@ public class ChatResponseValidator : AbstractValidator<ChatResponse>
             .NotNull().WithMessage("Context is required.");
 
         RuleFor(x => x.Context.Count)
-            .LessThanOrEqualTo(3)
-            .WithMessage("Context can contain at most 3 messages.");
+            .LessThanOrEqualTo(MaxContextMessages)
+            .WithMessage($"Context can contain at most {MaxContextMessages} messages.");
     }
 }
