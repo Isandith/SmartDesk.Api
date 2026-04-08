@@ -1,0 +1,18 @@
+﻿using SmartDesk.Api.Models.Chat;
+using SmartDesk.Api.Models.KnowledgeBase;
+
+namespace SmartDesk.Api.Adapters;
+
+public class DisabledAiServiceAdapter : IAiServiceAdapter
+{
+    public Task<string?> GetAnswerAsync(
+        string userMessage,
+        IReadOnlyList<ChatMessage> context,
+        KnowledgeBaseDocument knowledgeBase,
+        CancellationToken cancellationToken = default)
+    {
+        // This intentionally returns null so the system uses fallback keyword matching.
+        // Later you can replace this with a real OpenAI / Gemini / Hugging Face adapter.
+        return Task.FromResult<string?>(null);
+    }
+}

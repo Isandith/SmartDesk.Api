@@ -1,22 +1,28 @@
+using FluentValidation;
+using SmartDesk.Api.Services;
+using SmartDesk.Api.Adapters;
+using SmartDesk.Api.Strategies;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+builder.Services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
+builder.Services.AddSingleton<ISessionService, InMemorySessionService>();
+builder.Services.AddSingleton<ISentimentService, RuleBasedSentimentService>();
+builder.Services.AddSingleton<IAiServiceAdapter, DisabledAiServiceAdapter>();
+builder.Services.AddSingleton<AiAnswerStrategy>();
+builder.Services.AddSingleton<KeywordFallbackStrategy>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 

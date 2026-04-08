@@ -1,0 +1,100 @@
+{
+  "company_name": "Ekara Digital Partners",
+  "headquarters": "Wellington, New Zealand",
+  "contact": {
+    "email": "info@ekara.nz",
+    "phone": "+64 21 499 224",
+    "response_time": "2-3 business days for new quotes"
+  },
+  "support_policy": {
+    "compliance": "ITIL-compliant services",
+    "standard_support": "24-hour customer support available for critical systems",
+    "escalation_threshold": "Sentiment score below -0.6 triggers immediate priority escalation."
+  },
+  "faqs": [
+    {
+      "id": 1,
+      "category": "services",
+      "question": "What core services does Ekara Digital offer?",
+      "answer": "We specialize in custom Software Development, AI & Machine Learning solutions, Cloud Infrastructure design, ERP/CRM support, and Digital Marketing strategies.",
+      "metadata": {
+        "tags": ["software", "AI", "cloud", "marketing"],
+        "location": "New Zealand"
+      }
+    },
+    {
+      "id": 2,
+      "category": "AI/ML",
+      "question": "How can Ekara help with Artificial Intelligence?",
+      "answer": "We help businesses build smart chatbots, predictive analytics models, recommendation engines, and data-driven dashboards to transform raw data into actionable insights.",
+      "metadata": {
+        "tags": ["machine learning", "automation", "predictive analytics"]
+      }
+    },
+    {
+      "id": 3,
+      "category": "technical",
+      "question": "Do you support older or legacy software systems?",
+      "answer": "Yes. We specialize in Supporting Legacy Systems, focusing on performance optimization, troubleshooting, and ensuring compatibility with modern business processes to reduce replacement costs.",
+      "metadata": {
+        "tags": ["legacy", "maintenance", "optimization"]
+      }
+    },
+    {
+      "id": 4,
+      "category": "hosting",
+      "question": "What hosting plans do you provide?",
+      "answer": "We offer three main tiers: Basic (Hosting & Backups), Intermediate (Monitoring & Limited Support), and Service+ (includes 5 Email Accounts and advanced activity monitoring).",
+      "metadata": {
+        "tags": ["hosting", "email", "plans"],
+        "tier_options": ["Basic", "Intermediate", "Service+"]
+      }
+    },
+    {
+      "id": 5,
+      "category": "business",
+      "question": "How do I get a quote for a new project?",
+      "answer": "You can fill out the contact form on our website or email us directly at info@ekara.nz. Our team typically responds with a quote or follow-up within 2-3 business days.",
+      "metadata": {
+        "tags": ["sales", "quote", "onboarding"]
+      }
+    },
+    {
+      "id": 6,
+      "category": "quality_assurance",
+      "question": "What is your approach to software testing?",
+      "answer": "We use advanced QA methodologies including functional, performance, security, and usability testing. Our goal is to resolve issues early in the lifecycle using both automated scripts and manual testing.",
+      "metadata": {
+        "tags": ["QA", "testing", "security", "bugs"]
+      }
+    },
+    {
+      "id": 7,
+      "category": "infrastructure",
+      "question": "Does Ekara provide Cloud and DevOps services?",
+      "answer": "Yes. We design scalable, secure cloud solutions and streamline development through DevOps automation to accelerate delivery and improve collaboration.",
+      "metadata": {
+        "tags": ["cloud", "devops", "aws", "azure", "automation"]
+      }
+    },
+    {
+      "id": 8,
+      "category": "experience",
+      "question": "How long has Ekara been in operation?",
+      "answer": "Ekara Digital has been delivering excellence for over 16 years, completing 100+ projects across 5 different countries.",
+      "metadata": {
+        "tags": ["history", "track record", "global"]
+      }
+    },
+    {
+      "id": 9,
+      "category": "support",
+      "question": "My system is down or extremely slow.",
+      "answer": "For critical system failures, Ekara provides 24-hour support. Please ensure your internet connection is stable; if the issue persists, our engineers will intervene.",
+      "metadata": {
+        "tags": ["emergency", "slow", "down"],
+        "is_critical": true
+      }
+    }
+  ]
+}
