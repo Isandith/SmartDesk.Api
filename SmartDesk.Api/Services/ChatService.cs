@@ -9,7 +9,7 @@ namespace SmartDesk.Api.Services;
 /// </summary>
 public class ChatService : IChatService
 {
-    private const int MaxContextMessages = 20;
+    private const int MaxContextMessages = 3;
 
     private readonly ISessionService _sessionService;
     private readonly ISentimentService _sentimentService;

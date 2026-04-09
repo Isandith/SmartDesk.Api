@@ -28,8 +28,8 @@ public class InMemorySessionService : ISessionService
         {
             messages.Add(message);
 
-            // Keep history reasonably small.
-            while (messages.Count > 20)
+            // Keep only the latest 3 messages for short conversational context.
+            while (messages.Count > 3)
             {
                 messages.RemoveAt(0);
             }

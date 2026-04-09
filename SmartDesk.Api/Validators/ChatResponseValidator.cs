@@ -8,7 +8,7 @@ namespace SmartDesk.Api.Validators;
 /// </summary>
 public class ChatResponseValidator : AbstractValidator<ChatResponse>
 {
-    private const int MaxContextMessages = 20;
+    private const int MaxContextMessages = 3;
 
     public ChatResponseValidator()
     {
