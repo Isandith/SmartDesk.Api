@@ -10,7 +10,6 @@ namespace SmartDesk.Api.Services;
 public class ChatService : IChatService
 {
     private const int MaxContextMessages = 20;
-    private const string FrontendMarker = "!$!@$!$!";
 
     private readonly ISessionService _sessionService;
     private readonly ISentimentService _sentimentService;
@@ -69,6 +68,7 @@ public class ChatService : IChatService
         // Fall back to keyword matching if AI fails.
         var usingFallback = false;
         var aiFailureReason = AiServiceFailureReason.None;
+        var systemStatusMessage = string.Empty;
         if (!answerResult.Success)
         {
             usingFallback = true;
@@ -77,32 +77,24 @@ public class ChatService : IChatService
                 request.Message,
                 recentContext,
                 cancellationToken);
+
+            systemStatusMessage = aiFailureReason switch
+            {
+                AiServiceFailureReason.QuotaExceeded => "Gemini quota or rate limit was reached. Switched to manual mode.",
+                AiServiceFailureReason.RateLimited => "Gemini rate limit was reached. Switched to manual mode.",
+                AiServiceFailureReason.MissingApiKey => "AI service is not configured. Switched to manual mode.",
+                AiServiceFailureReason.InvalidApiKey => "AI authentication failed (invalid API key). Switched to manual mode.",
+                _ => "AI service is unavailable right now. Switched to manual mode."
+            };
         }
 
         var finalAnswer = answerResult.Answer;
 
-        // Add notification if using fallback mode
-        if (usingFallback)
-        {
-            var statusMessage = aiFailureReason switch
-            {
-                AiServiceFailureReason.QuotaExceeded => "ℹ️ System Status: Gemini quota or rate limit was reached. Switched to manual mode. ",
-                AiServiceFailureReason.RateLimited => "ℹ️ System Status: Gemini rate limit was reached. Switched to manual mode. ",
-                AiServiceFailureReason.MissingApiKey => "ℹ️ System Status: AI service is not configured. Switched to manual mode. ",
-                AiServiceFailureReason.InvalidApiKey => "ℹ️ System Status: AI authentication failed (invalid API key). Switched to manual mode. ",
-                _ => "ℹ️ System Status: AI service is unavailable right now. Switched to manual mode. "
-            };
-
-            finalAnswer = $"{FrontendMarker}[WARNING]{statusMessage}{FrontendMarker}[CONTENT]{finalAnswer}";
-        }
-
         if (priorityEscalation)
         {
             var priorityMessage = "⚠️ Priority Support: We're sorry you're facing issues. Our team will assist you immediately. ";
-            finalAnswer = $"{FrontendMarker}[PRIORITY]{priorityMessage}{FrontendMarker}[CONTENT]{finalAnswer}";
+            finalAnswer = $"{priorityMessage}{finalAnswer}".Trim();
         }
-
-        finalAnswer = finalAnswer.Replace(". ", $". {FrontendMarker}[BREAK] ");
 
         var assistantMessage = new ChatMessage
         {
@@ -122,6 +114,7 @@ public class ChatService : IChatService
             PriorityEscalation = priorityEscalation,
             ResponseSource = answerResult.Source,
             ManualMode = usingFallback,
+            SystemStatusMessage = systemStatusMessage,
             Context = _sessionService.GetRecentMessages(sessionId, MaxContextMessages).ToList()
         };
 

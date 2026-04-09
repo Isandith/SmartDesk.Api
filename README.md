@@ -102,6 +102,7 @@ Response (example):
   "priority_escalation": true,
   "response_source": "ai",
   "manual_mode": false,
+  "system_status_message": "",
   "context": []
 }
 ```
@@ -126,6 +127,7 @@ Response:
 - If score `< -0.6`:
   - `priority_escalation = true`
   - answer is prefixed with a priority support message
+- If AI falls back to keyword matching, `system_status_message` explains why the fallback happened
 
 ## Fallback Behavior
 

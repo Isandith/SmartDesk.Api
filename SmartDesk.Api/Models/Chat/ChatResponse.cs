@@ -28,6 +28,9 @@ public class ChatResponse
     [JsonPropertyName("manual_mode")]
     public bool ManualMode { get; set; }
 
+    [JsonPropertyName("system_status_message")]
+    public string SystemStatusMessage { get; set; } = string.Empty;
+
     [JsonPropertyName("context")]
     public List<ChatMessage> Context { get; set; } = new();
 }
