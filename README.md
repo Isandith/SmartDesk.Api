@@ -48,6 +48,17 @@ It answers user questions from a knowledge base, tracks short session context, d
 - `.NET SDK 10`
 - Gemini API key (or run in fallback mode)
 
+## IDE and Tooling Compatibility (.NET 10)
+
+- `.NET 10` is supported in **latest Visual Studio** versions that include .NET 10 tooling.
+- If Visual Studio is outdated, project load/build/debug may fail due to missing SDK/workload support.
+- For an easier and consistent setup, you can run this project using **latest VS Code** + `.NET 10 SDK`.
+
+### Recommended setup
+
+- `Visual Studio`: use latest version with .NET 10 support.
+- `VS Code`: use latest version, install C# extension pack (`ms-dotnettools.csdevkit`), and ensure `dotnet --version` shows `10.x`.
+
 ## Environment Setup
 
 Create/update `SmartDesk.Api/.env`:
@@ -75,6 +86,29 @@ dotnet run --project SmartDesk.Api/SmartDesk.Api.csproj
 ```
 
 Swagger UI will be available after launch (default ASP.NET Core development URL).
+
+## Easy Start with VS Code (Latest)
+
+1. Open folder `SmartDesk.Api` in VS Code.
+2. Create `SmartDesk.Api/.env` (or copy from `.env.example`) and set your values.
+3. Open a terminal in VS Code and run:
+
+```powershell
+dotnet restore
+dotnet run --project SmartDesk.Api/SmartDesk.Api.csproj
+```
+
+4. Open Swagger from the URL shown in terminal.
+
+Optional (frontend in sibling folder `../SmartDesk-UI`):
+
+```powershell
+cd ../SmartDesk-UI
+npm install
+npm run start
+```
+
+If backend build fails while app is already running, stop old `dotnet run` processes first and rerun.
 
 ## API Endpoints
 
