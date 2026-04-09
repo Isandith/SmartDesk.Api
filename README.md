@@ -59,6 +59,11 @@ GEMINI_API_VERSION=v1
 FRONTEND_URL=http://localhost:4200
 ```
 
+If you see an API configuration error, check that the file is named `.env` exactly.
+If the file is named `env` without the leading dot, the app will not load it.
+
+If you want a safe template instead of a real key, copy `.env.example` to `.env` and fill in your own values.
+
 > Important: Never commit real API keys to public repositories.
 
 ## Run the API
@@ -130,6 +135,12 @@ If AI fails (missing key, invalid key, quota, API failure, empty response, excep
 2. Best FAQ match is returned
 3. If no FAQ matches, a generic support contact response is returned
 
+### What the fallback messages mean
+
+- API configuration error: the `.env` file is missing, misnamed, or does not contain a valid `GEMINI_API_KEY`
+- Quota exceeded: the Gemini API has reached its usage limit for the current key or project
+- To continue after a quota error, create a new API key in Google AI Studio, then paste the new key into `.env`
+
 ## Validation
 
 - Request validation: `ChatRequestValidator`
@@ -149,5 +160,6 @@ FRONTEND_URL=http://localhost:4200
 ## Notes for Submission
 
 - Keep `.env` local only
+- Use `.env.example` as the shareable dummy template
 - Commit source code and `README.md`
 - Provide setup instructions and architecture explanation (this file)
